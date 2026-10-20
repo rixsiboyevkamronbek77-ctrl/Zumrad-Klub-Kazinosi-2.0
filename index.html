@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zumrad Klub — sohta pulli kazino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Cormorant+Garamond:ital@1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    --felt-1: #0c3d2e;
+    --felt-2: #0a2f24;
+    --felt-3: #082419;
+    --gold-1: #d9b45e;
+    --gold-2: #f0d896;
+    --gold-3: #8a6a24;
+    --cream: #f4ecd8;
+    --maroon: #7a2231;
+    --ink: #101b16;
+    --line: rgba(217, 180, 94, 0.28);
+    --win: #7fb88a;
+    --lose: #c96a5a;
+  }
+  :root:not([data-theme="light"]) {
+    --bg: var(--felt-3);
+    --panel: var(--felt-2);
+    --panel-2: var(--felt-1);
+    --text: var(--cream);
+    --text-dim: rgba(244, 236, 216, 0.62);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #efe6cf;
+      --panel: #fbf5e6;
+      --panel-2: #f4ecd8;
+      --text: #1b2a22;
+      --text-dim: rgba(27, 42, 34, 0.62);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: var(--felt-3);
+    --panel: var(--felt-2);
+    --panel-2: var(--felt-1);
+    --text: var(--cream);
+    --text-dim: rgba(244, 236, 216, 0.62);
+  }
+
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at top, rgba(217,180,94,0.08), transparent 55%),
+      repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 2px, transparent 2px, transparent 40px);
+    color: var(--text);
+    font-family: 'Manrope', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 18px 60px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .brand h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(28px, 5vw, 40px);
+    margin: 0;
+    letter-spacing: 0.01em;
+    color: var(--gold-2);
+  }
+  .brand p {
+    margin: 2px 0 0;
+    color: var(--text-dim);
+    font-size: 14px;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+  .balance {
+    text-align: right;
+  }
+  .balance .label {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+  .balance .amount {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(24px, 4vw, 34px);
+    color: var(--gold-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .balance .amount.flash-win { animation: flashwin .6s ease; }
+  .balance .amount.flash-lose { animation: flashlose .6s ease; }
+  @keyframes flashwin { 0%{ color: var(--win);} 100%{ color: var(--gold-2);} }
+  @keyframes flashlose { 0%{ color: var(--lose);} 100%{ color: var(--gold-2);} }
+
+  nav.tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 22px;
+  }
+  nav.tabs button {
+    flex: 0 0 auto;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text-dim);
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .2s, color .2s, background .2s;
+  }
+  nav.tabs button:hover { border-color: var(--gold-1); color: var(--text); }
+  nav.tabs button.active {
+    background: var(--gold-1);
+    border-color: var(--gold-1);
+    color: var(--ink);
+  }
+
+  .table {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: clamp(18px, 4vw, 34px);
+    position: relative;
+    overflow: hidden;
+  }
+  .table::before {
+    content: "";
+    position: absolute; inset: 8px;
+    border: 1px solid rgba(217,180,94,0.15);
+    border-radius: 12px;
+    pointer-events: none;
+  }
+  .game-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(22px, 4vw, 28px);
+    font-weight: 700;
+    color: var(--gold-2);
+    margin: 0 0 4px;
+  }
+  .game-sub { color: var(--text-dim); font-size: 14px; margin: 0 0 22px; max-width: 60ch; }
+
+  .bet-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 18px 0;
+  }
+  .bet-row label { font-size: 13px; color: var(--text-dim); }
+  .chip-input {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .chip-input span { padding: 0 10px; color: var(--gold-1); font-weight: 700; }
+  .chip-input input {
+    width: 110px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 16px;
+    padding: 9px 8px 9px 0;
+    font-variant-numeric: tabular-nums;
+    font-family: 'Manrope', sans-serif;
+  }
+  .chip-quick { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip-quick button {
+    background: rgba(217,180,94,0.12);
+    border: 1px solid var(--line);
+    color: var(--gold-2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .chip-quick button:hover { background: rgba(217,180,94,0.22); }
+
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 22px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    transition: transform .12s, filter .12s;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: linear-gradient(180deg, var(--gold-2), var(--gold-1)); color: var(--ink); }
+  .btn-primary:hover { filter: brightness(1.06); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--gold-1); }
+  .btn-maroon { background: var(--maroon); color: var(--cream); }
+
+  .msg {
+    min-height: 22px;
+    font-size: 14px;
+    margin-top: 14px;
+    color: var(--text-dim);
+  }
+  .msg.win { color: var(--win); font-weight: 700; }
+  .msg.lose { color: var(--lose); font-weight: 700; }
+
+  /* Slots */
+  .reels {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 6px 0 20px;
+  }
+  .reel {
+    width: 84px;
+    height: 84px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    overflow: hidden;
+  }
+  .reel.spin span { display: inline-block; animation: spin-symbol .12s linear infinite; }
+  @keyframes spin-symbol { 0% { transform: translateY(-6px);} 100% { transform: translateY(6px);} }
+  .paytable {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
+    gap: 8px;
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .paytable div { background: rgba(0,0,0,0.15); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
+
+  /* Roulette */
+  .roulette-layout { display: flex; gap: 28px; flex-wrap: wrap; align-items: center; justify-content: center; }
+  .wheel-holder { position: relative; width: 200px; height: 200px; flex: 0 0 auto; }
+  .wheel {
+    width: 200px; height: 200px; border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      #1c1c1c 0deg 9.73deg, #7a2231 9.73deg 19.46deg,
+      #1c1c1c 19.46deg 29.19deg, #7a2231 29.19deg 38.92deg,
+      #1c1c1c 38.92deg 48.65deg, #7a2231 48.65deg 58.38deg,
+      #1c1c1c 58.38deg 68.11deg, #7a2231 68.11deg 77.84deg,
+      #1c1c1c 77.84deg 87.57deg, #7a2231 87.57deg 97.3deg,
+      #1c1c1c 97.3deg 107.03deg, #7a2231 107.03deg 116.76deg,
+      #1c1c1c 116.76deg 126.49deg, #7a2231 126.49deg 136.22deg,
+      #1c1c1c 136.22deg 145.95deg, #7a2231 145.95deg 155.68deg,
+      #1c1c1c 155.68deg 165.41deg, #7a2231 165.41deg 175.14deg,
+      var(--win) 175.14deg 184.87deg,
+      #1c1c1c 184.87deg 194.6deg, #7a2231 194.6deg 204.33deg,
+      #1c1c1c 204.33deg 214.06deg, #7a2231 214.06deg 223.79deg,
+      #1c1c1c 223.79deg 233.52deg, #7a2231 233.52deg 243.25deg,
+      #1c1c1c 243.25deg 252.98deg, #7a2231 252.98deg 262.71deg,
+      #1c1c1c 262.71deg 272.44deg, #7a2231 272.44deg 282.17deg,
+      #1c1c1c 282.17deg 291.9deg, #7a2231 291.9deg 301.63deg,
+      #1c1c1c 301.63deg 311.36deg, #7a2231 311.36deg 321.09deg,
+      #1c1c1c 321.09deg 330.82deg, #7a2231 330.82deg 340.55deg,
+      #1c1c1c 340.55deg 350.28deg, #7a2231 350.28deg 360deg
+    );
+    border: 5px solid var(--gold-1);
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.4) inset, 0 10px 30px rgba(0,0,0,0.4);
+    transition: transform 2.4s cubic-bezier(.15,.85,.3,1);
+    position: relative;
+  }
+  .wheel::after {
+    content: "";
+    position: absolute; inset: 38%;
+    background: var(--panel-2);
+    border-radius: 50%;
+    border: 2px solid var(--gold-1);
+  }
+  .pointer {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 16px solid var(--gold-2);
+    z-index: 2;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+  }
+  .result-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border-radius: 50%;
+    font-weight: 700; font-size: 17px; color: var(--cream);
+    border: 2px solid var(--gold-1);
+  }
+  .bet-grid { display: flex; flex-direction: column; gap: 12px; min-width: 240px; }
+  .outside-bets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .outside-bets button {
+    padding: 10px 6px; border-radius: 8px; border: 1px solid var(--line);
+    background: rgba(0,0,0,0.18); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .outside-bets button.sel { outline: 2px solid var(--gold-1); }
+  .outside-bets button[data-color="red"] { border-color: rgba(122,34,49,0.6); }
+  .num-input { display: flex; align-items: center; gap: 8px; }
+  .num-input input {
+    width: 64px; background: rgba(0,0,0,0.18); border: 1px solid var(--line); border-radius: 8px;
+    color: var(--text); padding: 8px; text-align: center; font-size: 15px;
+  }
+
+  /* Blackjack */
+  .bj-area { display: flex; flex-direction: column; gap: 18px; }
+  .hand-block .hand-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; display:flex; justify-content: space-between; }
+  .cards { display: flex; gap: 8px; flex-wrap: wrap; min-height: 92px; }
+  .card {
+    width: 60px; height: 84px; border-radius: 8px; background: var(--cream);
+    color: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+  .card.red { color: var(--maroon); }
+  .card.back {
+    background: repeating-linear-gradient(45deg, var(--felt-1), var(--felt-1) 6px, var(--gold-3) 6px, var(--gold-3) 12px);
+  }
+  .bj-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+  /* Dice */
+  .dice-row { display: flex; gap: 18px; align-items: center; justify-content: center; margin: 10px 0 22px; flex-wrap: wrap; }
+  .die {
+    width: 72px; height: 72px; border-radius: 14px; background: var(--cream);
+    display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr);
+    padding: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+  }
+  .die .pip { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); margin: auto; opacity: 0; }
+  .die.rolling { animation: roll .1s linear infinite; }
+  @keyframes roll { 0%{transform:rotate(0)} 100%{transform:rotate(8deg)} }
+  .guess-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 6px; }
+  .guess-row button {
+    padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line);
+    background: rgba(0,0,0,0.18); color: var(--text); font-weight: 700; cursor: pointer;
+  }
+  .guess-row button.sel { background: var(--gold-1); color: var(--ink); border-color: var(--gold-1); }
+
+  footer.note {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-top: 28px;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  .reset-link { background: none; border: none; color: var(--text-dim); text-decoration: underline; cursor: pointer; font-size: 12px; padding: 0; }
+
+  /* Menyu, yutuqlar, yangi o’yinlar */
+  .menu-btns { display: grid; gap: 10px; max-width: 340px; margin: 8px 0 22px; }
+  .menu-btns .btn { padding: 15px 22px; font-size: 16px; text-align: left; }
+  .ach-list { display: grid; gap: 8px; margin-bottom: 18px; }
+  .ach { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0,0,0,0.14); opacity: 0.55; }
+  .ach.on { opacity: 1; }
+  .ach-ic { font-size: 22px; }
+  .ach-d { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .ach .btn { padding: 7px 12px; font-size: 12px; margin-left: 6px; }
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 30px); background: var(--gold-1); color: var(--ink); padding: 11px 20px; border-radius: 999px; font-weight: 700; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; z-index: 20; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .broke { display: none; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--maroon); color: var(--cream); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-weight: 700; }
+  .wl { position: absolute; left: 50%; top: 0; height: 50%; width: 26px; margin-left: -13px; transform-origin: 50% 100%; text-align: center; font-size: 8px; font-weight: 700; color: #f4ecd8; padding-top: 3px; z-index: 1; }
+  .coin-wrap { display: flex; justify-content: center; margin: 8px 0 18px; }
+  .coin { width: 96px; height: 96px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, var(--gold-2), var(--gold-1) 60%, var(--gold-3)); color: var(--ink); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; letter-spacing: .04em; border: 3px solid var(--gold-3); box-shadow: 0 6px 16px rgba(0,0,0,.4); }
+  .coin.flip { animation: coinflip .9s ease-in-out; }
+  @keyframes coinflip { from { transform: rotateY(0); } to { transform: rotateY(1440deg); } }
+
+  /* Raketa, Plinko, Mina, Ot poygasi */
+  .sky { position: relative; height: 170px; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(180deg, #0a1a2e, #10305a); overflow: hidden; margin: 6px 0 14px; }
+  .rocket { position: absolute; left: 50%; bottom: 0; font-size: 40px; transform: translateX(-50%); transition: bottom .05s linear; }
+  .crash-mult { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-size: 44px; text-align: center; color: var(--gold-2); font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+  .plinko { position: relative; width: 100%; max-width: 340px; height: 290px; margin: 6px auto 14px; }
+  .peg { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: var(--gold-2); opacity: .8; }
+  .pball { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fff, var(--gold-1)); transition: left .2s linear, top .2s ease-in; box-shadow: 0 2px 6px rgba(0,0,0,.5); z-index: 2; }
+  .pbin { position: absolute; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; border-radius: 6px; background: rgba(0,0,0,.25); border: 1px solid var(--line); color: var(--text); }
+  .pbin.hit { background: var(--gold-1); color: var(--ink); }
+  .mines { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 320px; margin: 6px auto 14px; }
+  .mcell { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,.22); font-size: 22px; cursor: pointer; color: var(--text); padding: 0; }
+  .mcell:disabled { cursor: default; }
+  .mcell.gem { background: rgba(127,184,138,.28); }
+  .mcell.bomb { background: rgba(201,106,90,.4); }
+  .track { position: relative; margin: 6px 0 14px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: rgba(0,0,0,.15); }
+  .lane { position: relative; height: 38px; border-bottom: 1px dashed var(--line); }
+  .lane:last-child { border-bottom: none; }
+  .lane .lab { position: absolute; right: 12px; top: 11px; font-size: 11px; color: var(--text-dim); }
+  .lane .horse { position: absolute; top: 3px; left: 0; font-size: 26px; transform: scaleX(-1); }
+  .finish { position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background: repeating-linear-gradient(0deg, var(--cream) 0 6px, var(--ink) 6px 12px); z-index: 1; }
+
+  /* Poker */
+  .poker-cards { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 6px 0 18px; }
+  .poker-card-slot { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .poker-card-slot .card { width: 68px; height: 96px; font-size: 22px; transition: transform .15s, box-shadow .15s; }
+  .poker-card-slot.held .card { transform: translateY(-8px); box-shadow: 0 0 0 3px var(--gold-1), 0 6px 14px rgba(0,0,0,0.4); }
+  .poker-card-slot .hold-tag { font-size: 11px; font-weight: 700; color: var(--gold-2); opacity: 0; letter-spacing: 0.04em; }
+  .poker-card-slot.held .hold-tag { opacity: 1; }
+  .poker-hand-name { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; font-weight: 700; color: var(--gold-2); min-height: 26px; text-align: center; margin-top: 4px; }
+
+  @media (max-width: 520px) {
+    .roulette-layout { flex-direction: column; }
+    .bet-grid { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Zumrad Klub</h1>
+      <p>Faqat sohta pul — hech qanday real tikish yo'q</p>
+    </div>
+    <div class="balance">
+      <div class="label">Balans · <button class="reset-link" id="menuBtn">Menyu</button></div>
+      <div class="amount" id="balanceAmt">$100,000</div>
+    </div>
+  </header>
+
+  <div class="broke" id="broke"><span>Pulingiz tugadi!</span><button class="btn btn-primary" id="restart">Qayta boshlash ($100,000)</button></div>
+  <div id="menuView"></div>
+  <div id="playView" style="display:none">
+  <button class="btn btn-ghost" id="exitBtn" style="margin-bottom:14px">← Menyuga chiqish</button>
+  <nav class="tabs" id="tabs"></nav>
+  <div id="gameHost"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <footer class="note">Bu — mashq uchun sohta balansli o'yin. Haqiqiy pul ishtirok etmaydi.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- State ----------
+  var STORAGE_KEY = "zumrad-club-balance";
+  var state = { balance: 100000, ach: {}, promos: {} };
+  try {
+    var ex = JSON.parse(localStorage.getItem("zumrad-club-extra") || "{}");
+    state.ach = ex.ach || {}; state.promos = ex.promos || {};
+  } catch (e) {}
+  try {
+    var saved = localStorage.getItem(STORAGE_KEY);
+    if (saved !== null) {
+      var n = parseFloat(saved);
+      if (!isNaN(n) && n >= 0) state.balance = n;
+    }
+  } catch (e) { /* storage unavailable — start fresh */ }
+
+  function persist() {
+    try { localStorage.setItem(STORAGE_KEY, String(state.balance)); localStorage.setItem("zumrad-club-extra", JSON.stringify({ ach: state.ach, promos: state.promos })); } catch (e) {}
+  }
+  function fmt(n) {
+    return "$" + Math.round(n).toLocaleString("en-US");
+  }
+  function setBalance(n, kind) {
+    state.balance = Math.max(0, n);
+    var el = document.getElementById("balanceAmt");
+    el.textContent = fmt(state.balance);
+    el.classList.remove("flash-win", "flash-lose");
+    void el.offsetWidth;
+    if (kind) el.classList.add(kind === "win" ? "flash-win" : "flash-lose");
+    if (kind === "win") unlock("win");
+    if (state.balance >= 1000000) unlock("million");
+    if (state.balance >= 10000000) unlock("ten");
+    if (state.balance < 1) unlock("broke");
+    document.getElementById("broke").style.display = state.balance < 1 ? "flex" : "none";
+    persist();
+  }
+  function canBet(amount) {
+    if (!amount || amount <= 0) return "Tikish miqdorini kiriting.";
+    if (amount > state.balance) return "Balansingizda yetarli pul yo'q.";
+    return null;
+  }
+
+  // ---------- Tabs ----------
+  var GAMES = [
+    { id: "slots", label: "Slot mashina" },
+    { id: "roulette", label: "Ruletka" },
+    { id: "blackjack", label: "Blekjek" },
+    { id: "dice", label: "Zarlar" },
+    { id: "poker", label: "Poker" },
+    { id: "coin", label: "Tanga" },
+    { id: "fortune", label: "Omad g’ildiragi" },
+    { id: "hilo", label: "Yuqori–Past" },
+    { id: "crash", label: "Raketa" },
+    { id: "plinko", label: "Plinko" },
+    { id: "mines", label: "Mina" },
+    { id: "horses", label: "Ot poygasi" }
+  ];
+  var activeGame = "slots";
+
+  var tabsEl = document.getElementById("tabs");
+  GAMES.forEach(function(g){
+    var b = document.createElement("button");
+    b.textContent = g.label;
+    b.dataset.id = g.id;
+    b.className = g.id === activeGame ? "active" : "";
+    b.addEventListener("click", function(){ switchGame(g.id); });
+    tabsEl.appendChild(b);
+  });
+
+  function switchGame(id) {
+    activeGame = id;
+    Array.prototype.forEach.call(tabsEl.children, function(btn){
+      btn.classList.toggle("active", btn.dataset.id === id);
+    });
+    renderGame();
+  }
+
+  var host = document.getElementById("gameHost");
+  function renderGame() {
+    host.innerHTML = "";
+    if (activeGame === "slots") renderSlots(host);
+    else if (activeGame === "roulette") renderRoulette(host);
+    else if (activeGame === "blackjack") renderBlackjack(host);
+    else if (activeGame === "dice") renderDice(host);
+    else if (activeGame === "poker") renderPoker(host);
+    else if (activeGame === "coin") renderCoin(host);
+    else if (activeGame === "fortune") renderFortune(host);
+    else if (activeGame === "hilo") renderHilo(host);
+    else if (activeGame === "crash") renderCrash(host);
+    else if (activeGame === "plinko") renderPlinko(host);
+    else if (activeGame === "mines") renderMines(host);
+    else if (activeGame === "horses") renderHorses(host);
+  }
+
+  // ---------- Bet control helper ----------
+  function betControl(defaultVal) {
+    var wrap = document.createElement("div");
+    wrap.className = "bet-row";
+    wrap.innerHTML =
+      '<label>Tikish miqdori</label>' +
+      '<div class="chip-input"><span>$</span><input type="number" min="1" step="1" value="' + defaultVal + '"></div>' +
+      '<div class="chip-quick">' +
+        '<button data-v="10">+10</button>' +
+        '<button data-v="100">+100</button>' +
+        '<button data-v="1000">+1,000</button>' +
+        '<button data-v="max">Max</button>' +
+      '</div>';
+    var input = wrap.querySelector("input");
+    wrap.querySelectorAll(".chip-quick button").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        if (btn.dataset.v === "max") input.value = Math.floor(state.balance);
+        else input.value = Math.max(0, (parseFloat(input.value)||0) + parseFloat(btn.dataset.v));
+      });
+    });
+    return { el: wrap, input: input };
+  }
+
+  // ================= SLOTS =================
+  var SLOT_SYMBOLS = ["🍒","🍋","🔔","⭐","💎","7️⃣"];
+  var SLOT_PAYOUT = { "🍒":3, "🍋":4, "🔔":8, "⭐":12, "💎":25, "7️⃣":50 };
+
+  function renderSlots(host) {
+    var box = document.createElement("div");
+    box.className = "table";
+    box.innerHTML =
+      '<h2 class="game-title">Slot mashina</h2>' +
+      '<p class="game-sub">Uchta bir xil belgi tushsa — belgi darajasiga qarab yutuq beriladi.</p>' +
+      '<div class="reels">' +
+        '<div class="reel"><span>🍒</span></div>' +
+        '<div class="reel"><span>🍋</span></div>' +
+        '<div class="reel"><span>🔔</span></div>' +
+      '</div>';
+    var bet = betControl(50);
+    box.appendChild(bet.el);
+
+    var actionRow = document.createElement("div");
+    actionRow.className = "bet-row";
+    var spinBtn = document.createElement("button");
+    spinBtn.className = "btn btn-primary";
+    spinBtn.textContent = "Aylantirish";
+    actionRow.appendChild(spinBtn);
+    box.appendChild(actionRow);
+
+    var msg = document.createElement("div");
+    msg.className = "msg";
+    box.appendChild(msg);
+
+    var pay = document.createElement("div");
+    pay.className = "paytable";
+    pay.innerHTML = Object.keys(SLOT_PAYOUT).map(function(s){
+      return "<div>" + s + s + s + " — tikishning x" + SLOT_PAYOUT[s] + " qismi</div>";
+    }).join("");
+    box.appendChild(pay);
+
+    var reels = box.querySelectorAll(".reel");
+
+    spinBtn.addEventListener("click", function(){
+      var amount = parseFloat(bet.input.value);
+      var err = canBet(amount);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+
+      spinBtn.disabled = true;
+      msg.textContent = "";
+      msg.className = "msg";
+      reels.forEach(function(r){ r.classList.add("spin"); });
+
+      var final = [randSymbol(), randSymbol(), randSymbol()];
+      var ticks = 0;
+      var iv = setInterval(function(){
+        ticks++;
+        reels.forEach(function(r){ r.querySelector("span").textContent = randSymbol(); });
+        if (ticks > 14) {
+          clearInterval(iv);
+          reels.forEach(function(r, i){
+            r.classList.remove("spin");
+            r.querySelector("span").textContent = final[i];
+          });
+          settle(final);
+        }
+      }, 80);
+
+      function settle(final) {
+        var newBal = state.balance - amount;
+        if (final[0] === final[1] && final[1] === final[2]) {
+          var mult = SLOT_PAYOUT[final[0]];
+          if (mult === 50) unlock("jackpot");
+          var winAmt = amount * mult;
+          newBal += winAmt;
+          setBalance(newBal, "win");
+          msg.textContent = "Yutdingiz! " + fmt(winAmt) + " (x" + mult + ")";
+          msg.className = "msg win";
+        } else if (final[0] === final[1] || final[1] === final[2] || final[0] === final[2]) {
+          var refund = Math.round(amount * 0.5);
+          newBal += refund;
+          setBalance(newBal, "lose");
+          msg.textContent = "Ikkita bir xil — " + fmt(refund) + " qaytarildi.";
+          msg.className = "msg";
+        } else {
+          setBalance(newBal, "lose");
+          msg.textContent = "Yutuqsiz. Qayta urinib ko'ring.";
+          msg.className = "msg lose";
+        }
+        spinBtn.disabled = false;
+      }
+    });
+
+    host.appendChild(box);
+  }
+  function randSymbol(){ return SLOT_SYMBOLS[Math.floor(Math.random()*SLOT_SYMBOLS.length)]; }
+
+  // ================= ROULETTE =================
+  var RED_NUMBERS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+  var WHEEL_ORDER = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+  function numColor(n){
+    if (n === 0) return "green";
+    return RED_NUMBERS.indexOf(n) !== -1 ? "red" : "black";
+  }
+
+  function renderRoulette(host) {
+    var box = document.createElement("div");
+    box.className = "table";
+    box.innerHTML =
+      '<h2 class="game-title">Ruletka</h2>' +
+      '<p class="game-sub">Rang, juft/toq yoki aniq raqamga tikib g\'ildirakni aylantiring.</p>';
+
+    var layout = document.createElement("div");
+    layout.className = "roulette-layout";
+
+    var wheelHolder = document.createElement("div");
+    wheelHolder.className = "wheel-holder";
+    var step = 360 / 37, stops = [], labs = "";
+    WHEEL_ORDER.forEach(function(n, i){
+      var col = n === 0 ? "#3f8f5a" : (numColor(n) === "red" ? "#7a2231" : "#1c1c1c");
+      stops.push(col + " " + (i * step) + "deg " + ((i + 1) * step) + "deg");
+      labs += '<span class="wl" style="transform:rotate(' + ((i + 0.5) * step) + 'deg)">' + n + '</span>';
+    });
+    wheelHolder.innerHTML = '<div class="pointer"></div><div class="wheel" id="wheelEl" style="background:conic-gradient(' + stops.join(",") + ')">' + labs + '</div>';
+    layout.appendChild(wheelHolder);
+
+    var betGrid = document.createElement("div");
+    betGrid.className = "bet-grid";
+
+    var outside = document.createElement("div");
+    outside.className = "outside-bets";
+    var options = [
+      { key: "red", label: "Qizil" },
+      { key: "black", label: "Qora" },
+      { key: "green", label: "Yashil (0)" },
+      { key: "even", label: "Juft" },
+      { key: "odd", label: "Toq" },
+      { key: "number", label: "Aniq raqam" }
+    ];
+    var selected = "red";
+    options.forEach(function(o){
+      var b = document.createElement("button");
+      b.textContent = o.label;
+      b.dataset.key = o.key;
+      if (o.key === "red") b.classList.add("sel");
+      b.dataset.color = o.key;
+      b.addEventListener("click", function(){
+        selected = o.key;
+        outside.querySelectorAll("button").forEach(function(x){ x.classList.remove("sel"); });
+        b.classList.add("sel");
+        numWrap.style.display = (o.key === "number") ? "flex" : "none";
+      });
+      outside.appendChild(b);
+    });
+    betGrid.appendChild(outside);
+
+    var numWrap = document.createElement("div");
+    numWrap.className = "num-input";
+    numWrap.style.display = "none";
+    numWrap.innerHTML = '<label style="font-size:13px;color:var(--text-dim)">Raqam (0-36)</label><input type="number" min="0" max="36" value="17">';
+    betGrid.appendChild(numWrap);
+
+    var bet = betControl(50);
+    betGrid.appendChild(bet.el);
+
+    var spinBtn = document.createElement("button");
+    spinBtn.className = "btn btn-primary";
+    spinBtn.textContent = "G'ildirakni aylantirish";
+    betGrid.appendChild(spinBtn);
+
+    var resultRow = document.createElement("div");
+    resultRow.className = "bet-row";
+    resultRow.style.marginTop = "6px";
+    betGrid.appendChild(resultRow);
+
+    var msg = document.createElement("div");
+    msg.className = "msg";
+    betGrid.appendChild(msg);
+
+    layout.appendChild(betGrid);
+    box.appendChild(layout);
+    host.appendChild(box);
+
+    var wheelEl = document.getElementById("wheelEl");
+    var currentRotation = 0;
+
+    spinBtn.addEventListener("click", function(){
+      var amount = parseFloat(bet.input.value);
+      var err = canBet(amount);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+
+      spinBtn.disabled = true;
+      msg.textContent = "";
+      resultRow.innerHTML = "";
+
+      var winningNumber = Math.floor(Math.random() * 37);
+      var idx = WHEEL_ORDER.indexOf(winningNumber), dp = 360 / 37;
+      var jitter = (Math.random() - 0.5) * dp * 0.6;
+      currentRotation = currentRotation - (currentRotation % 360) + 360 * 5 + (360 - (idx + 0.5) * dp) + jitter;
+      wheelEl.style.transform = "rotate(" + currentRotation + "deg)";
+
+      setTimeout(function(){
+        var color = numColor(winningNumber);
+        var badge = document.createElement("span");
+        badge.className = "result-badge";
+        badge.style.background = color === "red" ? "var(--maroon)" : (color === "black" ? "#1c1c1c" : "var(--win)");
+        badge.textContent = winningNumber;
+        resultRow.appendChild(badge);
+
+        var win = false, mult = 0;
+        if (selected === "number") {
+          var guess = parseInt(numWrap.querySelector("input").value, 10);
+          if (guess === winningNumber) { win = true; mult = 35; unlock("num"); }
+        } else if (selected === "red" || selected === "black" || selected === "green") {
+          if (selected === color) { win = true; mult = (selected === "green") ? 35 : 1; }
+        } else if (selected === "even") {
+          if (winningNumber !== 0 && winningNumber % 2 === 0) { win = true; mult = 1; }
+        } else if (selected === "odd") {
+          if (winningNumber % 2 === 1) { win = true; mult = 1; }
+        }
+
+        var newBal = state.balance - amount;
+        if (win) {
+          var winAmt = amount * mult + amount;
+          newBal += winAmt;
+          setBalance(newBal, "win");
+          msg.textContent = "Yutdingiz! Natija: " + winningNumber + " (" + colorLabel(color) + ") — " + fmt(winAmt);
+          msg.className = "msg win";
+        } else {
+          setBalance(newBal, "lose");
+          msg.textContent = "Yutuqsiz. Natija: " + winningNumber + " (" + colorLabel(color) + ")";
+          msg.className = "msg lose";
+        }
+        spinBtn.disabled = false;
+      }, 2500);
+    });
+  }
+  function colorLabel(c){ return c === "red" ? "qizil" : (c === "black" ? "qora" : "yashil"); }
+
+  // ================= BLACKJACK =================
+  var bjState = null;
+
+  function renderBlackjack(host) {
+    var box = document.createElement("div");
+    box.className = "table";
+    box.innerHTML =
+      '<h2 class="game-title">Blekjek</h2>' +
+      '<p class="game-sub">21 raqamiga imkon qadar yaqinlashing, lekin undan oshmang. Diler 17 dan kam bo\'lsa qarta oladi.</p>';
+
+    var area = document.createElement("div");
+    area.className = "bj-area";
+
+    var dealerBlock = document.createElement("div");
+    dealerBlock.className = "hand-block";
+    dealerBlock.innerHTML = '<div class="hand-label"><span>Diler</span><span id="dealerScore"></span></div><div class="cards" id="dealerCards"></div>';
+    area.appendChild(dealerBlock);
+
+    var playerBlock = document.createElement("div");
+    playerBlock.className = "hand-block";
+    playerBlock.innerHTML = '<div class="hand-label"><span>Siz</span><span id="playerScore"></span></div><div class="cards" id="playerCards"></div>';
+    area.appendChild(playerBlock);
+
+    var bet = betControl(100);
+    area.appendChild(bet.el);
+
+    var startRow = document.createElement("div");
+    startRow.className = "bet-row";
+    var dealBtn = document.createElement("button");
+    dealBtn.className = "btn btn-primary";
+    dealBtn.textContent = "Qarta tarqatish";
+    startRow.appendChild(dealBtn);
+    area.appendChild(startRow);
+
+    var actions = document.createElement("div");
+    actions.className = "bj-actions";
+    var hitBtn = document.createElement("button");
+    hitBtn.className = "btn btn-ghost"; hitBtn.textContent = "Qarta olish";
+    var standBtn = document.createElement("button");
+    standBtn.className = "btn btn-maroon"; standBtn.textContent = "To'xtash";
+    actions.appendChild(hitBtn); actions.appendChild(standBtn);
+    actions.style.display = "none";
+    area.appendChild(actions);
+
+    var msg = document.createElement("div");
+    msg.className = "msg";
+    area.appendChild(msg);
+
+    box.appendChild(area);
+    host.appendChild(box);
+
+    var dealerCardsEl = document.getElementById("dealerCards");
+    var playerCardsEl = document.getElementById("playerCards");
+    var dealerScoreEl = document.getElementById("dealerScore");
+    var playerScoreEl = document.getElementById("playerScore");
+
+    function freshDeck() {
+      var suits = ["♠","♥","♦","♣"];
+      var ranks = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+      var d = [];
+      suits.forEach(function(s){ ranks.forEach(function(r){ d.push({ r: r, s: s }); }); });
+      for (var i = d.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i+1));
+        var t = d[i]; d[i] = d[j]; d[j] = t;
+      }
+      return d;
+    }
+    function cardValue(c) {
+      if (c.r === "A") return 11;
+      if (c.r === "J" || c.r === "Q" || c.r === "K") return 10;
+      return parseInt(c.r, 10);
+    }
+    function handScore(hand) {
+      var total = 0, aces = 0;
+      hand.forEach(function(c){ total += cardValue(c); if (c.r === "A") aces++; });
+      while (total > 21 && aces > 0) { total -= 10; aces--; }
+      return total;
+    }
+    function cardEl(c, hidden) {
+      var el = document.createElement("div");
+      if (hidden) { el.className = "card back"; return el; }
+      el.className = "card" + ((c.s === "♥" || c.s === "♦") ? " red" : "");
+      el.innerHTML = c.r + "<div style='font-size:16px'>" + c.s + "</div>";
+      return el;
+    }
+    function renderHands(revealDealer) {
+      dealerCardsEl.innerHTML = "";
+      bjState.dealer.forEach(function(c, i){
+        dealerCardsEl.appendChild(cardEl(c, i === 1 && !revealDealer));
+      });
+      playerCardsEl.innerHTML = "";
+      bjState.player.forEach(function(c){ playerCardsEl.appendChild(cardEl(c, false)); });
+      playerScoreEl.textContent = handScore(bjState.player);
+      dealerScoreEl.textContent = revealDealer ? handScore(bjState.dealer) : "?";
+    }
+
+    dealBtn.addEventListener("click", function(){
+      var amount = parseFloat(bet.input.value);
+      var err = canBet(amount);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+      setBalance(state.balance - amount);
+
+      var deck = freshDeck();
+      bjState = { deck: deck, player: [deck.pop(), deck.pop()], dealer: [deck.pop(), deck.pop()], bet: amount, done: false };
+      renderHands(false);
+      msg.textContent = "";
+      msg.className = "msg";
+      dealBtn.disabled = true;
+      bet.input.disabled = true;
+      actions.style.display = "flex";
+
+      if (handScore(bjState.player) === 21) { finishRound(); }
+    });
+
+    hitBtn.addEventListener("click", function(){
+      if (!bjState || bjState.done) return;
+      bjState.player.push(bjState.deck.pop());
+      renderHands(false);
+      if (handScore(bjState.player) >= 21) finishRound();
+    });
+
+    standBtn.addEventListener("click", function(){
+      if (!bjState || bjState.done) return;
+      finishRound();
+    });
+
+    function finishRound() {
+      bjState.done = true;
+      var pScore = handScore(bjState.player);
+      if (pScore <= 21) {
+        while (handScore(bjState.dealer) < 17) {
+          bjState.dealer.push(bjState.deck.pop());
+        }
+      }
+      renderHands(true);
+      var dScore = handScore(bjState.dealer);
+      var amount = bjState.bet;
+      var outcome, payout = 0;
+
+      if (pScore > 21) { outcome = "Siz 21 dan oshib ketdingiz. Yutqazdingiz."; payout = 0; }
+      else if (pScore === 21 && bjState.player.length === 2 && !(dScore === 21 && bjState.dealer.length === 2)) {
+        outcome = "Blekjek! Siz yutdingiz."; payout = amount * 2.5; unlock("bj");
+      }
+      else if (dScore > 21) { outcome = "Diler oshib ketdi. Siz yutdingiz."; payout = amount * 2; }
+      else if (pScore > dScore) { outcome = "Siz yutdingiz! " + pScore + " vs " + dScore; payout = amount * 2; }
+      else if (pScore === dScore) { outcome = "Durrang. Tikishingiz qaytarildi."; payout = amount; }
+      else { outcome = "Diler yutdi. " + dScore + " vs " + pScore; payout = 0; }
+
+      if (payout > 0) {
+        setBalance(state.balance + payout, payout > amount ? "win" : undefined);
+      } else {
+        setBalance(state.balance, "lose");
+      }
+      msg.textContent = outcome;
+      msg.className = "msg " + (payout > amount ? "win" : (payout === 0 ? "lose" : ""));
+
+      dealBtn.disabled = false;
+      bet.input.disabled = false;
+      actions.style.display = "none";
+    }
+  }
+
+  // ================= DICE =================
+  function renderDice(host) {
+    var box = document.createElement("div");
+    box.className = "table";
+    box.innerHTML =
+      '<h2 class="game-title">Zarlar</h2>' +
+      '<p class="game-sub">Ikkita zar yig\'indisi 7 dan katta, kichik yoki teng bo\'lishini bashorat qiling.</p>';
+
+    var diceRow = document.createElement("div");
+    diceRow.className = "dice-row";
+    diceRow.innerHTML = '<div class="die" id="die1"></div><div class="die" id="die2"></div>';
+    box.appendChild(diceRow);
+
+    var guessRow = document.createElement("div");
+    guessRow.className = "guess-row";
+    var opts = [
+      { key: "under", label: "Kichik (2-6)", mult: 2 },
+      { key: "seven", label: "Teng 7", mult: 5 },
+      { key: "over", label: "Katta (8-12)", mult: 2 }
+    ];
+    var selected = "over";
+    opts.forEach(function(o){
+      var b = document.createElement("button");
+      b.textContent = o.label + " · x" + o.mult;
+      if (o.key === selected) b.classList.add("sel");
+      b.addEventListener("click", function(){
+        selected = o.key;
+        guessRow.querySelectorAll("button").forEach(function(x){ x.classList.remove("sel"); });
+        b.classList.add("sel");
+      });
+      guessRow.appendChild(b);
+    });
+    box.appendChild(guessRow);
+
+    var bet = betControl(50);
+    box.appendChild(bet.el);
+
+    var rollRow = document.createElement("div");
+    rollRow.className = "bet-row";
+    var rollBtn = document.createElement("button");
+    rollBtn.className = "btn btn-primary";
+    rollBtn.textContent = "Zarlarni tashlash";
+    rollRow.appendChild(rollBtn);
+    box.appendChild(rollRow);
+
+    var msg = document.createElement("div");
+    msg.className = "msg";
+    box.appendChild(msg);
+
+    host.appendChild(box);
+
+    var die1 = document.getElementById("die1");
+    var die2 = document.getElementById("die2");
+    drawDie(die1, 1); drawDie(die2, 1);
+
+    function drawDie(el, value) {
+      el.innerHTML = "";
+      var layout = {
+        1: [4],
+        2: [0,8],
+        3: [0,4,8],
+        4: [0,2,6,8],
+        5: [0,2,4,6,8],
+        6: [0,2,3,5,6,8]
+      }[value];
+      for (var i = 0; i < 9; i++) {
+        var p = document.createElement("div");
+        p.className = "pip";
+        if (layout.indexOf(i) !== -1) p.style.opacity = 1;
+        el.appendChild(p);
+      }
+    }
+
+    rollBtn.addEventListener("click", function(){
+      var amount = parseFloat(bet.input.value);
+      var err = canBet(amount);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+
+      rollBtn.disabled = true;
+      msg.textContent = "";
+      die1.classList.add("rolling"); die2.classList.add("rolling");
+
+      var ticks = 0;
+      var iv = setInterval(function(){
+        ticks++;
+        drawDie(die1, 1 + Math.floor(Math.random()*6));
+        drawDie(die2, 1 + Math.floor(Math.random()*6));
+        if (ticks > 10) {
+          clearInterval(iv);
+          die1.classList.remove("rolling"); die2.classList.remove("rolling");
+          var v1 = 1 + Math.floor(Math.random()*6);
+          var v2 = 1 + Math.floor(Math.random()*6);
+          drawDie(die1, v1); drawDie(die2, v2);
+          var sum = v1 + v2;
+
+          var opt = opts.filter(function(o){ return o.key === selected; })[0];
+          var win = (selected === "under" && sum < 7) || (selected === "over" && sum > 7) || (selected === "seven" && sum === 7);
+          var newBal = state.balance - amount;
+          if (win) {
+            var winAmt = amount * opt.mult;
+            newBal += winAmt;
+            setBalance(newBal, "win");
+            msg.textContent = "Yig'indi " + sum + " — yutdingiz! " + fmt(winAmt);
+            msg.className = "msg win";
+          } else {
+            setBalance(newBal, "lose");
+            msg.textContent = "Yig'indi " + sum + " — yutuqsiz.";
+            msg.className = "msg lose";
+          }
+          rollBtn.disabled = false;
+        }
+      }, 70);
+    });
+  }
+
+  // ================= POKER (Jacks or Better) =================
+  var POKER_PAYOUTS = [
+    { key: "royal", label: "Qirollik flesh (Royal Flush)", mult: 250 },
+    { key: "straightflush", label: "Tartibli flesh (Straight Flush)", mult: 50 },
+    { key: "quads", label: "Kare (Four of a Kind)", mult: 25 },
+    { key: "fullhouse", label: "Full haus", mult: 9 },
+    { key: "flush", label: "Flesh", mult: 6 },
+    { key: "straight", label: "Tartibli (Straight)", mult: 4 },
+    { key: "trips", label: "Set (Three of a Kind)", mult: 3 },
+    { key: "twopair", label: "Ikki juft", mult: 2 },
+    { key: "jacksbetter", label: "Juft (Valet yoki kattaroq)", mult: 1 }
+  ];
+  var RANK_ORDER = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+
+  function renderPoker(host) {
+    var box = document.createElement("div");
+    box.className = "table";
+    box.innerHTML =
+      '<h2 class="game-title">Poker — Jacks or Better</h2>' +
+      '<p class="game-sub">5 ta qarta oling, saqlab qolmoqchi bo\'lganlaringizni bosing, so\'ng qolganlarini almashtiring. Kamida Valet (J) juftligi kerak.</p>';
+
+    var cardsRow = document.createElement("div");
+    cardsRow.className = "poker-cards";
+    box.appendChild(cardsRow);
+
+    var handName = document.createElement("div");
+    handName.className = "poker-hand-name";
+    box.appendChild(handName);
+
+    var bet = betControl(50);
+    box.appendChild(bet.el);
+
+    var actionRow = document.createElement("div");
+    actionRow.className = "bet-row";
+    var dealBtn = document.createElement("button");
+    dealBtn.className = "btn btn-primary";
+    dealBtn.textContent = "Tarqatish";
+    var drawBtn = document.createElement("button");
+    drawBtn.className = "btn btn-maroon";
+    drawBtn.textContent = "Almashtirish";
+    drawBtn.style.display = "none";
+    actionRow.appendChild(dealBtn);
+    actionRow.appendChild(drawBtn);
+    box.appendChild(actionRow);
+
+    var msg = document.createElement("div");
+    msg.className = "msg";
+    box.appendChild(msg);
+
+    var pay = document.createElement("div");
+    pay.className = "paytable";
+    pay.innerHTML = POKER_PAYOUTS.map(function(p){
+      return "<div>" + p.label + " — x" + p.mult + "</div>";
+    }).join("");
+    box.appendChild(pay);
+
+    host.appendChild(box);
+
+    var deck = [], hand = [], held = [false,false,false,false,false], amount = 0, stage = "idle";
+
+    function freshDeck() {
+      var suits = ["♠","♥","♦","♣"];
+      var d = [];
+      suits.forEach(function(s){ RANK_ORDER.forEach(function(r){ d.push({ r: r, s: s }); }); });
+      for (var i = d.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i+1));
+        var t = d[i]; d[i] = d[j]; d[j] = t;
+      }
+      return d;
+    }
+
+    function renderCards() {
+      cardsRow.innerHTML = "";
+      hand.forEach(function(c, i){
+        var slot = document.createElement("div");
+        slot.className = "poker-card-slot" + (held[i] ? " held" : "");
+        var cardEl = document.createElement("div");
+        cardEl.className = "card" + ((c.s === "♥" || c.s === "♦") ? " red" : "");
+        cardEl.innerHTML = c.r + "<div style='font-size:15px'>" + c.s + "</div>";
+        var tag = document.createElement("div");
+        tag.className = "hold-tag";
+        tag.textContent = "USHLAB TURILDI";
+        slot.appendChild(cardEl);
+        slot.appendChild(tag);
+        if (stage === "held") {
+          slot.addEventListener("click", function(){
+            held[i] = !held[i];
+            renderCards();
+          });
+        }
+        cardsRow.appendChild(slot);
+      });
+    }
+
+    function evaluateHand(cards) {
+      var ranks = cards.map(function(c){ return RANK_ORDER.indexOf(c.r); }).sort(function(a,b){ return a-b; });
+      var suits = cards.map(function(c){ return c.s; });
+      var isFlush = suits.every(function(s){ return s === suits[0]; });
+      var uniqueRanks = ranks.filter(function(v,i,a){ return a.indexOf(v) === i; });
+      var isStraight = false;
+      if (uniqueRanks.length === 5) {
+        if (ranks[4] - ranks[0] === 4) isStraight = true;
+        // Ace-low straight: A,2,3,4,5 -> indices 12,0,1,2,3
+        if (ranks.join(",") === [0,1,2,3,12].join(",")) isStraight = true;
+      }
+      var counts = {};
+      ranks.forEach(function(r){ counts[r] = (counts[r]||0) + 1; });
+      var countVals = Object.keys(counts).map(function(k){ return { rank: parseInt(k,10), n: counts[k] }; })
+        .sort(function(a,b){ return b.n - a.n || b.rank - a.rank; });
+
+      var isRoyal = isStraight && isFlush && ranks[0] === 8; // 10,J,Q,K,A -> indices 8..12
+      if (isRoyal) return { key: "royal", label: "Qirollik flesh!" };
+      if (isStraight && isFlush) return { key: "straightflush", label: "Tartibli flesh!" };
+      if (countVals[0].n === 4) return { key: "quads", label: "Kare!" };
+      if (countVals[0].n === 3 && countVals[1].n === 2) return { key: "fullhouse", label: "Full haus!" };
+      if (isFlush) return { key: "flush", label: "Flesh!" };
+      if (isStraight) return { key: "straight", label: "Tartibli!" };
+      if (countVals[0].n === 3) return { key: "trips", label: "Set!" };
+      if (countVals[0].n === 2 && countVals[1].n === 2) return { key: "twopair", label: "Ikki juft!" };
+      if (countVals[0].n === 2 && countVals[0].rank >= RANK_ORDER.indexOf("J")) return { key: "jacksbetter", label: "Juft (Valet+)!" };
+      return { key: "none", label: "Yutuqli kombinatsiya yo'q" };
+    }
+
+    dealBtn.addEventListener("click", function(){
+      var val = parseFloat(bet.input.value);
+      var err = canBet(val);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+      amount = val;
+      setBalance(state.balance - amount);
+
+      deck = freshDeck();
+      hand = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+      held = [false,false,false,false,false];
+      stage = "held";
+      handName.textContent = "";
+      msg.textContent = "Saqlamoqchi bo'lgan kartalarni bosing, keyin almashtiring.";
+      msg.className = "msg";
+      dealBtn.style.display = "none";
+      drawBtn.style.display = "inline-block";
+      bet.input.disabled = true;
+      renderCards();
+    });
+
+    drawBtn.addEventListener("click", function(){
+      for (var i = 0; i < 5; i++) {
+        if (!held[i]) hand[i] = deck.pop();
+      }
+      stage = "done";
+      renderCards();
+
+      var result = evaluateHand(hand);
+      var payInfo = POKER_PAYOUTS.filter(function(p){ return p.key === result.key; })[0];
+      if (result.key === "royal") unlock("royal");
+
+      if (payInfo) {
+        var winAmt = amount * payInfo.mult;
+        setBalance(state.balance + winAmt, "win");
+        handName.textContent = result.label;
+        msg.textContent = "Yutdingiz! " + fmt(winAmt) + " (x" + payInfo.mult + ")";
+        msg.className = "msg win";
+      } else {
+        setBalance(state.balance, "lose");
+        handName.textContent = result.label;
+        msg.textContent = "Yutuqsiz. Qayta urinib ko'ring.";
+        msg.className = "msg lose";
+      }
+
+      dealBtn.style.display = "inline-block";
+      dealBtn.textContent = "Yana tarqatish";
+      drawBtn.style.display = "none";
+      bet.input.disabled = false;
+    });
+
+    renderCards();
+  }
+
+  // ================= YANGI O’YINLAR =================
+  var SUITS = ["♠","♥","♦","♣"];
+  function cardName(r){ return r === 11 ? "J" : r === 12 ? "Q" : r === 13 ? "K" : r === 14 ? "A" : String(r); }
+  function cardHtml(r, s, back) {
+    if (back) return '<div class="card back"></div>';
+    var red = (s === "♥" || s === "♦");
+    return '<div class="card' + (red ? ' red' : '') + '">' + cardName(r) + '<div style="font-size:16px">' + s + '</div></div>';
+  }
+
+  // ---- Tanga ----
+  function renderCoin(host) {
+    var box = document.createElement("div");
+    box.className = "table";
+    box.innerHTML = '<h2 class="game-title">Tanga tashlash</h2><p class="game-sub">Gerb yoki raqamni tanlang. Topsangiz tikishingiz ikki baravar bo’ladi.</p><div class="coin-wrap"><div class="coin" id="coinEl">GERB</div></div>';
+    var pick = "gerb";
+    var row = document.createElement("div");
+    row.className = "guess-row";
+    ["gerb", "raqam"].forEach(function(k){
+      var b = document.createElement("button");
+      b.textContent = k === "gerb" ? "Gerb" : "Raqam";
+      if (k === pick) b.classList.add("sel");
+      b.addEventListener("click", function(){
+        pick = k;
+        row.querySelectorAll("button").forEach(function(x){ x.classList.remove("sel"); });
+        b.classList.add("sel");
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    var bet = betControl(100);
+    box.appendChild(bet.el);
+    var r = document.createElement("div");
+    r.className = "bet-row";
+    var go = document.createElement("button");
+    go.className = "btn btn-primary";
+    go.textContent = "Tashlash";
+    r.appendChild(go);
+    box.appendChild(r);
+    var msg = document.createElement("div");
+    msg.className = "msg";
+    box.appendChild(msg);
+    host.appendChild(box);
+    var coin = box.querySelector("#coinEl");
+    go.addEventListener("click", function(){
+      var amount = parseFloat(bet.input.value), err = canBet(amount);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+      go.disabled = true; msg.textContent = ""; msg.className = "msg";
+      coin.classList.add("flip");
+      setTimeout(function(){
+        coin.classList.remove("flip");
+        var res = Math.random() < 0.5 ? "gerb" : "raqam";
+        coin.textContent = res === "gerb" ? "GERB" : "RAQAM";
+        var win = res === pick;
+        state.coinStreak = win ? (state.coinStreak || 0) + 1 : 0;
+        if (win) {
+          setBalance(state.balance + amount, "win");
+          msg.textContent = "Yutdingiz! +" + fmt(amount); msg.className = "msg win";
+        } else {
+          setBalance(state.balance - amount, "lose");
+          msg.textContent = "Yutqazdingiz."; msg.className = "msg lose";
+        }
+        if (state.coinStreak >= 3) unlock("coin");
+        go.disabled = false;
+      }, 900);
+    });
+  }
+
+  // ---- Omad g’ildiragi ----
+  var FORTUNE = [0,0.5,0,1,0,2,0,0.5,0,3,0,1,0,2,0.5,5];
+  function renderFortune(host) {
+    var box = document.createElement("div");
+    box.className = "table";
+    var dp = 360 / FORTUNE.length, stops = [], labs = "";
+    FORTUNE.forEach(function(m, i){
+      var c = m === 0 ? "#3a1620" : (m >= 3 ? "#a0762a" : (m >= 1 ? "#2f7a52" : "#1f4f3c"));
+      stops.push(c + " " + (i * dp) + "deg " + ((i + 1) * dp) + "deg");
+      labs += '<span class="wl" style="transform:rotate(' + ((i + 0.5) * dp) + 'deg)">x' + m + '</span>';
+    });
+    box.innerHTML = '<h2 class="game-title">Omad g’ildiragi</h2><p class="game-sub">G’ildirak to’xtagan joydagi koeffitsiyent tikishingizga ko’paytiriladi. x0 — yutqazish.</p><div class="roulette-layout"><div class="wheel-holder"><div class="pointer"></div><div class="wheel" id="fWheel" style="background:conic-gradient(' + stops.join(",") + ')">' + labs + '</div></div><div class="bet-grid" id="fGrid"></div></div>';
+    var grid = box.querySelector("#fGrid");
+    var bet = betControl(100);
+    grid.appendChild(bet.el);
+    var go = document.createElement("button");
+    go.className = "btn btn-primary";
+    go.textContent = "Aylantirish";
+    grid.appendChild(go);
+    var msg = document.createElement("div");
+    msg.className = "msg";
+    grid.appendChild(msg);
+    host.appendChild(box);
+    var wheel = box.querySelector("#fWheel"), rot = 0;
+    go.addEventListener("click", function(){
+      var amount = parseFloat(bet.input.value), err = canBet(amount);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+      go.disabled = true; msg.textContent = ""; msg.className = "msg";
+      var idx = Math.floor(Math.random() * FORTUNE.length), m = FORTUNE[idx];
+      rot = rot - (rot % 360) + 360 * 5 + (360 - (idx + 0.5) * dp) + (Math.random() - 0.5) * dp * 0.6;
+      wheel.style.transform = "rotate(" + rot + "deg)";
+      setTimeout(function(){
+        var net = Math.round(amount * (m - 1));
+        setBalance(state.balance + net, net > 0 ? "win" : (net < 0 ? "lose" : undefined));
+        if (m >= 5) unlock("fortune");
+        if (net > 0) { msg.textContent = "x" + m + " — yutdingiz! +" + fmt(net); msg.className = "msg win"; }
+        else if (net < 0) { msg.textContent = "x" + m + " — " + fmt(-net) + " yo’qotdingiz."; msg.className = "msg lose"; }
+        else { msg.textContent = "x1 — tikishingiz qaytdi."; msg.className = "msg"; }
+        go.disabled = false;
+      }, 2500);
+    });
+  }
+
+  // ---- Yuqori–Past ----
+  function renderHilo(host) {
+    var box = document.createElement("div");
+    box.className = "table";
+    box.innerHTML = '<h2 class="game-title">Yuqori–Past</h2><p class="game-sub">Keyingi karta hozirgisidan yuqori yoki past bo’ladimi? Teng chiqsa yutqazasiz. Koeffitsiyent ehtimolga qarab o’zgaradi.</p><div class="cards" id="hiloCards" style="justify-content:center;margin-bottom:12px"></div>';
+    var bet = betControl(100);
+    box.appendChild(bet.el);
+    var row = document.createElement("div");
+    row.className = "bet-row";
+    var up = document.createElement("button"), down = document.createElement("button");
+    up.className = "btn btn-primary"; down.className = "btn btn-maroon";
+    row.appendChild(up); row.appendChild(down);
+    box.appendChild(row);
+    var msg = document.createElement("div");
+    msg.className = "msg";
+    box.appendChild(msg);
+    host.appendChild(box);
+    var area = box.querySelector("#hiloCards");
+    function rnd() { return { r: 2 + Math.floor(Math.random() * 13), s: SUITS[Math.floor(Math.random() * 4)] }; }
+    var cur = rnd();
+    function mults() {
+      var pu = (14 - cur.r) / 13, pd = (cur.r - 2) / 13;
+      return { up: pu > 0 ? Math.round(0.95 / pu * 100) / 100 : 0, down: pd > 0 ? Math.round(0.95 / pd * 100) / 100 : 0 };
+    }
+    function labels() {
+      var m = mults();
+      up.textContent = "Yuqori ▲ x" + m.up; down.textContent = "Past ▼ x" + m.down;
+      up.disabled = !m.up; down.disabled = !m.down;
+    }
+    function play(dir) {
+      var amount = parseFloat(bet.input.value), err = canBet(amount);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+      var m = mults()[dir], nxt = rnd();
+      var win = dir === "up" ? nxt.r > cur.r : nxt.r < cur.r;
+      area.innerHTML = cardHtml(cur.r, cur.s) + cardHtml(nxt.r, nxt.s);
+      if (win) {
+        var g = Math.round(amount * (m - 1));
+        setBalance(state.balance + g, "win");
+        msg.textContent = "Yutdingiz! +" + fmt(g); msg.className = "msg win";
+      } else {
+        setBalance(state.balance - amount, "lose");
+        msg.textContent = nxt.r === cur.r ? "Teng chiqdi — yutqazdingiz." : "Yutqazdingiz."; msg.className = "msg lose";
+      }
+      cur = nxt;
+      labels();
+    }
+    up.addEventListener("click", function(){ play("up"); });
+    down.addEventListener("click", function(){ play("down"); });
+    area.innerHTML = cardHtml(cur.r, cur.s) + cardHtml(0, "", true);
+    labels();
+  }
+
+  // ================= RAKETA / PLINKO / MINA / OT POYGASI =================
+  function mk(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; }
+
+  // ---- Raketa ----
+  function renderCrash(host) {
+    var box = mk("div", "table");
+    box.innerHTML = '<h2 class="game-title">Raketa</h2><p class="game-sub">Raketa ko’tarilgan sari koeffitsiyent oshadi. Portlashidan oldin pulni yeching, aks holda tikish yo’qoladi.</p><div class="sky"><div class="rocket" id="rk">🚀</div></div><div class="crash-mult" id="cm">x1.00</div>';
+    var bet = betControl(100);
+    box.appendChild(bet.el);
+    var row = mk("div", "bet-row");
+    var go = mk("button", "btn btn-primary", "Boshlash");
+    var out = mk("button", "btn btn-maroon", "Pulni yechish");
+    out.style.display = "none";
+    row.appendChild(go); row.appendChild(out);
+    box.appendChild(row);
+    var msg = mk("div", "msg");
+    box.appendChild(msg);
+    host.appendChild(box);
+    var rk = box.querySelector("#rk"), cm = box.querySelector("#cm");
+    var timer = null, amount = 0, mult = 1;
+    function finish() { go.style.display = "inline-block"; out.style.display = "none"; bet.input.disabled = false; }
+    go.addEventListener("click", function(){
+      var a = parseFloat(bet.input.value), err = canBet(a);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+      amount = a;
+      setBalance(state.balance - amount);
+      var crashAt = Math.min(200, Math.max(1, 0.97 / (1 - Math.random())));
+      var t0 = Date.now();
+      mult = 1;
+      go.style.display = "none"; out.style.display = "inline-block"; bet.input.disabled = true;
+      msg.textContent = ""; msg.className = "msg";
+      rk.textContent = "🚀"; rk.style.bottom = "0%";
+      timer = setInterval(function(){
+        mult = Math.exp(0.12 * (Date.now() - t0) / 1000);
+        if (mult >= crashAt) {
+          clearInterval(timer); timer = null;
+          cm.textContent = "x" + crashAt.toFixed(2);
+          rk.textContent = "💥";
+          setBalance(state.balance, "lose");
+          msg.textContent = "Raketa portladi! Tikish yo’qoldi."; msg.className = "msg lose";
+          finish();
+          return;
+        }
+        cm.textContent = "x" + mult.toFixed(2);
+        rk.style.bottom = (Math.min(1, Math.log(mult) / Math.log(20)) * 70) + "%";
+      }, 50);
+    });
+    out.addEventListener("click", function(){
+      if (!timer) return;
+      clearInterval(timer); timer = null;
+      var m = Math.floor(mult * 100) / 100, payout = Math.round(amount * m);
+      setBalance(state.balance + payout, payout > amount ? "win" : "lose");
+      cm.textContent = "x" + m.toFixed(2);
+      msg.textContent = "Pulni yechdingiz! x" + m.toFixed(2) + " — " + fmt(payout); msg.className = "msg win";
+      finish();
+    });
+  }
+
+  // ---- Plinko ----
+  var PLINKO = [10, 3, 1.5, 1, 0.5, 1, 1.5, 3, 10];
+  function renderPlinko(host) {
+    var box = mk("div", "table");
+    var W = 340, dx = 34, dy = 26, cx = W / 2, top = 20, rows = 8, html = "", i, j, k;
+    for (i = 0; i < rows; i++) for (j = 0; j <= i; j++) {
+      html += '<div class="peg" style="left:' + ((cx + (-i + 2 * j) * dx / 2) / W * 100) + '%;top:' + (top + i * dy) + 'px"></div>';
+    }
+    for (k = 0; k < 9; k++) {
+      html += '<div class="pbin" style="left:' + ((cx + (-8 + 2 * k) * dx / 2 - dx / 2 + 2) / W * 100) + '%;top:' + (top + rows * dy + 6) + 'px;width:' + ((dx - 4) / W * 100) + '%">x' + PLINKO[k] + '</div>';
+    }
+    box.innerHTML = '<h2 class="game-title">Plinko</h2><p class="game-sub">Shar tepadan tushib, pastdagi uyalardan biriga tushadi. Chetdagi uyalarning koeffitsiyenti eng yuqori.</p><div class="plinko">' + html + '<div class="pball" id="pb" style="opacity:0"></div></div>';
+    var bet = betControl(100);
+    box.appendChild(bet.el);
+    var row = mk("div", "bet-row");
+    var go = mk("button", "btn btn-primary", "Shar tashlash");
+    row.appendChild(go);
+    box.appendChild(row);
+    var msg = mk("div", "msg");
+    box.appendChild(msg);
+    host.appendChild(box);
+    var pb = box.querySelector("#pb"), bins = box.querySelectorAll(".pbin");
+    go.addEventListener("click", function(){
+      var amount = parseFloat(bet.input.value), err = canBet(amount);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+      setBalance(state.balance - amount);
+      go.disabled = true; msg.textContent = ""; msg.className = "msg";
+      Array.prototype.forEach.call(bins, function(b){ b.classList.remove("hit"); });
+      var offs = [0], R = 0, n;
+      for (n = 1; n <= rows; n++) { R += Math.random() < 0.5 ? 1 : 0; offs.push((2 * R - n) * dx / 2); }
+      pb.style.transition = "none"; pb.style.opacity = 1; pb.style.left = "50%"; pb.style.top = (top - 14) + "px";
+      void pb.offsetWidth; pb.style.transition = "";
+      var st = 0;
+      (function stepFn(){
+        pb.style.left = ((cx + offs[st]) / W * 100) + "%";
+        pb.style.top = (st < rows ? top + st * dy : top + rows * dy + 18) + "px";
+        if (st < rows) { st++; setTimeout(stepFn, 230); } else setTimeout(done, 260);
+      })();
+      function done() {
+        var payout = Math.round(amount * PLINKO[R]);
+        bins[R].classList.add("hit");
+        setBalance(state.balance + payout, payout > amount ? "win" : "lose");
+        msg.textContent = "x" + PLINKO[R] + " uyaga tushdi — " + fmt(payout);
+        msg.className = "msg " + (payout > amount ? "win" : (payout < amount ? "lose" : ""));
+        go.disabled = false;
+      }
+    });
+  }
+
+  // ---- Mina ----
+  function renderMines(host) {
+    var box = mk("div", "table");
+    box.innerHTML = '<h2 class="game-title">Mina</h2><p class="game-sub">Katakchalarni oching: olmos topsangiz koeffitsiyent oshadi, mina chiqsa tikish yo’qoladi. Xohlagan payt pulni yechib oling.</p>';
+    var count = 3, active = false, mineSet = [], opened = [], k = 0, amount = 0;
+    var cRow = mk("div", "guess-row");
+    [1, 3, 5, 10].forEach(function(c){
+      var b = mk("button", c === count ? "sel" : "", c + " ta mina");
+      b.addEventListener("click", function(){
+        if (active) return;
+        count = c;
+        Array.prototype.forEach.call(cRow.children, function(x){ x.classList.remove("sel"); });
+        b.classList.add("sel");
+        info.textContent = "";
+      });
+      cRow.appendChild(b);
+    });
+    box.appendChild(cRow);
+    var bet = betControl(100);
+    box.appendChild(bet.el);
+    var row = mk("div", "bet-row");
+    var go = mk("button", "btn btn-primary", "Boshlash");
+    var out = mk("button", "btn btn-maroon", "Pulni yechish");
+    out.style.display = "none";
+    row.appendChild(go); row.appendChild(out);
+    box.appendChild(row);
+    var info = mk("div", "msg");
+    box.appendChild(info);
+    var grid = mk("div", "mines");
+    box.appendChild(grid);
+    var msg = mk("div", "msg");
+    box.appendChild(msg);
+    host.appendChild(box);
+    function multAt(n) { var m = 0.97, i; for (i = 0; i < n; i++) m *= (25 - i) / (25 - count - i); return m; }
+    function draw(reveal) {
+      grid.innerHTML = "";
+      for (var i = 0; i < 25; i++) (function(i){
+        var b = mk("button", "mcell");
+        if (opened[i]) { b.classList.add("gem"); b.textContent = "💎"; }
+        else if (reveal && mineSet[i]) { b.classList.add("bomb"); b.textContent = "💣"; }
+        else if (reveal) { b.textContent = "💎"; b.style.opacity = 0.35; }
+        if (!active || opened[i]) b.disabled = true;
+        else b.addEventListener("click", function(){ pick(i); });
+        grid.appendChild(b);
+      })(i);
+    }
+    function updInfo() {
+      info.textContent = "Hozirgi: x" + multAt(k).toFixed(2) + " · Keyingi: x" + multAt(k + 1).toFixed(2);
+      out.disabled = k === 0;
+    }
+    function end() { active = false; go.style.display = "inline-block"; out.style.display = "none"; bet.input.disabled = false; draw(true); }
+    function cash() {
+      var payout = Math.round(amount * multAt(k));
+      setBalance(state.balance + payout, payout > amount ? "win" : "lose");
+      msg.textContent = "Pulni yechdingiz! x" + multAt(k).toFixed(2) + " — " + fmt(payout); msg.className = "msg win";
+      end();
+    }
+    function pick(i) {
+      if (!active) return;
+      if (mineSet[i]) {
+        setBalance(state.balance, "lose");
+        msg.textContent = "Mina! Tikish yo’qoldi."; msg.className = "msg lose";
+        end();
+        return;
+      }
+      opened[i] = true; k++;
+      if (k === 25 - count) { cash(); return; }
+      draw(false); updInfo();
+    }
+    go.addEventListener("click", function(){
+      var a = parseFloat(bet.input.value), err = canBet(a);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+      amount = a;
+      setBalance(state.balance - amount);
+      mineSet = []; opened = []; k = 0;
+      var placed = 0, r;
+      while (placed < count) { r = Math.floor(Math.random() * 25); if (!mineSet[r]) { mineSet[r] = true; placed++; } }
+      active = true;
+      go.style.display = "none"; out.style.display = "inline-block"; bet.input.disabled = true;
+      msg.textContent = ""; msg.className = "msg";
+      draw(false); updInfo();
+    });
+    out.addEventListener("click", function(){ if (active && k > 0) cash(); });
+    draw(false);
+  }
+
+  // ---- Ot poygasi ----
+  var HORSES = [ { n: "Bulut", p: 0.35 }, { n: "Shamol", p: 0.25 }, { n: "Qorabayir", p: 0.2 }, { n: "Chaqmoq", p: 0.12 }, { n: "Oltin", p: 0.08 } ];
+  function renderHorses(host) {
+    var box = mk("div", "table");
+    box.innerHTML = '<h2 class="game-title">Ot poygasi</h2><p class="game-sub">Otni tanlang. Yutish ehtimoli past otning koeffitsiyenti yuqori bo’ladi.</p>';
+    var mults = HORSES.map(function(h){ return Math.round(0.95 / h.p * 100) / 100; });
+    var pick = 0;
+    var gRow = mk("div", "guess-row");
+    HORSES.forEach(function(h, i){
+      var b = mk("button", i === pick ? "sel" : "", (i + 1) + " · " + h.n + " x" + mults[i]);
+      b.addEventListener("click", function(){
+        pick = i;
+        Array.prototype.forEach.call(gRow.children, function(x){ x.classList.remove("sel"); });
+        b.classList.add("sel");
+      });
+      gRow.appendChild(b);
+    });
+    box.appendChild(gRow);
+    var track = mk("div", "track"), lanes = "";
+    HORSES.forEach(function(h, i){ lanes += '<div class="lane"><span class="lab">' + (i + 1) + ' · ' + h.n + '</span><span class="horse">🐎</span></div>'; });
+    track.innerHTML = lanes + '<div class="finish"></div>';
+    box.appendChild(track);
+    var bet = betControl(100);
+    box.appendChild(bet.el);
+    var row = mk("div", "bet-row");
+    var go = mk("button", "btn btn-primary", "Poygani boshlash");
+    row.appendChild(go);
+    box.appendChild(row);
+    var msg = mk("div", "msg");
+    box.appendChild(msg);
+    host.appendChild(box);
+    var horseEls = track.querySelectorAll(".horse");
+    function place(i, pos) { horseEls[i].style.left = "calc(" + pos + "% - " + (pos * 0.32) + "px)"; }
+    go.addEventListener("click", function(){
+      var amount = parseFloat(bet.input.value), err = canBet(amount);
+      if (err) { msg.textContent = err; msg.className = "msg lose"; return; }
+      setBalance(state.balance - amount);
+      go.disabled = true; msg.textContent = ""; msg.className = "msg";
+      var r = Math.random(), acc = 0, w = 0, i;
+      for (i = 0; i < HORSES.length; i++) { acc += HORSES[i].p; if (r < acc) { w = i; break; } }
+      var T = HORSES.map(function(h, idx){ return idx === w ? 5000 : 5300 + Math.random() * 1500; });
+      var maxT = Math.max.apply(null, T), t0 = Date.now();
+      for (i = 0; i < HORSES.length; i++) place(i, 0);
+      var iv = setInterval(function(){
+        var t = Date.now() - t0, idx;
+        for (idx = 0; idx < HORSES.length; idx++) {
+          var x = Math.min(1, t / T[idx]);
+          place(idx, Math.min(100, Math.max(0, x * 100 + 3 * Math.sin(t / 260 + idx * 2) * (1 - x))));
+        }
+        if (t >= maxT) {
+          clearInterval(iv);
+          var payout = Math.round(amount * mults[w]);
+          if (pick === w) {
+            setBalance(state.balance + payout, "win");
+            msg.textContent = "G’olib: " + HORSES[w].n + "! Yutdingiz: " + fmt(payout); msg.className = "msg win";
+          } else {
+            setBalance(state.balance, "lose");
+            msg.textContent = "G’olib: " + HORSES[w].n + ". Yutqazdingiz."; msg.className = "msg lose";
+          }
+          go.disabled = false;
+        }
+      }, 40);
+    });
+  }
+
+  // ================= MENYU / YUTUQLAR / SAQLASHLAR =================
+  var PROMOS = { ZUMRAD: 50000, OMAD: 25000, SALOM: 10000, BOSS: 250000 };
+  var ACH = [
+    { id: "win", t: "Birinchi g’alaba", d: "Birinchi marta yuting." },
+    { id: "million", t: "Birinchi million", d: "Balansingiz $1,000,000 ga yetsin." },
+    { id: "ten", t: "O’n million", d: "Balansingiz $10,000,000 ga yetsin." },
+    { id: "jackpot", t: "Jekpot!", d: "Slotda 7️⃣7️⃣7️⃣ tushiring." },
+    { id: "royal", t: "Qirollik qo’li", d: "Pokerda Royal Flush yig’ing." },
+    { id: "bj", t: "Blekjek ustasi", d: "Blekjekda tabiiy 21 oling." },
+    { id: "num", t: "Aniq nishon", d: "Ruletkada aniq raqamni topib yuting." },
+    { id: "coin", t: "Tanga ustasi", d: "Tangada ketma-ket 3 marta yuting." },
+    { id: "fortune", t: "Omad kuni", d: "Omad g’ildiragida x5 ni urib oling." },
+    { id: "promo", t: "Promokod ovchisi", d: "Promokodni faollashtiring." },
+    { id: "broke", t: "Bankrot", d: "Barcha pulingizni yo’qoting." }
+  ];
+  function unlock(id) {
+    if (state.ach[id]) return;
+    state.ach[id] = true;
+    persist();
+    var a = ACH.filter(function(x){ return x.id === id; })[0];
+    var t = document.getElementById("toast");
+    t.textContent = "🏆 Yutuq ochildi: " + a.t;
+    t.classList.add("show");
+    setTimeout(function(){ t.classList.remove("show"); }, 3200);
+  }
+
+  var menuView = document.getElementById("menuView");
+  var playView = document.getElementById("playView");
+  function showView(v) {
+    menuView.style.display = v === "play" ? "none" : "block";
+    playView.style.display = v === "play" ? "block" : "none";
+    if (v === "play") renderGame();
+    else if (v === "ach") renderAch();
+    else if (v === "saves") renderSaves();
+    else renderMenu();
+  }
+  function wireBack() {
+    var b = document.getElementById("backM");
+    if (b) b.addEventListener("click", function(){ showView("menu"); });
+  }
+
+  function renderMenu() {
+    menuView.innerHTML =
+      '<div class="table"><h2 class="game-title">Bosh menyu</h2>' +
+      '<p class="game-sub">Zumrad Klubga xush kelibsiz. Barcha pullar sohta.</p>' +
+      '<div class="menu-btns">' +
+        '<button class="btn btn-primary" data-v="play">🎰 O’ynash</button>' +
+        '<button class="btn btn-ghost" data-v="ach">🏆 Yutuqlar</button>' +
+        '<button class="btn btn-ghost" data-v="saves">💾 Saqlashlar</button>' +
+      '</div>' +
+      '<div class="bet-row"><label>Promokod</label>' +
+        '<div class="chip-input"><input id="promoIn" type="text" placeholder="KODNI KIRITING" style="width:150px;padding-left:10px"></div>' +
+        '<button class="btn btn-ghost" id="promoBtn">Faollashtirish</button></div>' +
+      '<div class="msg" id="promoMsg"></div>' +
+      '<button class="reset-link" id="newGame">Yangi o’yin boshlash ($100,000)</button></div>';
+    Array.prototype.forEach.call(menuView.querySelectorAll("button[data-v]"), function(b){
+      b.addEventListener("click", function(){ showView(b.dataset.v); });
+    });
+    document.getElementById("promoBtn").addEventListener("click", function(){
+      var code = document.getElementById("promoIn").value.trim().toUpperCase();
+      var pm = document.getElementById("promoMsg");
+      if (!code) { pm.textContent = "Promokodni kiriting."; pm.className = "msg lose"; return; }
+      if (!PROMOS.hasOwnProperty(code)) { pm.textContent = "Bunday promokod mavjud emas."; pm.className = "msg lose"; return; }
+      if (state.promos[code]) { pm.textContent = "Bu kod allaqachon ishlatilgan."; pm.className = "msg lose"; return; }
+      state.promos[code] = true;
+      setBalance(state.balance + PROMOS[code]);
+      unlock("promo");
+      pm.textContent = "Promokod faollashtirildi! +" + fmt(PROMOS[code]);
+      pm.className = "msg win";
+    });
+    document.getElementById("newGame").addEventListener("click", function(){
+      setBalance(100000);
+      var pm = document.getElementById("promoMsg");
+      pm.textContent = "Yangi o’yin boshlandi: balans $100,000."; pm.className = "msg";
+    });
+  }
+
+  function renderAch() {
+    var n = ACH.filter(function(a){ return state.ach[a.id]; }).length;
+    var html = '<div class="table"><h2 class="game-title">Yutuqlar</h2><p class="game-sub">Ochilgan: ' + n + ' / ' + ACH.length + '</p><div class="ach-list">';
+    ACH.forEach(function(a){
+      var u = !!state.ach[a.id];
+      html += '<div class="ach' + (u ? ' on' : '') + '"><span class="ach-ic">' + (u ? '🏆' : '🔒') + '</span><div><b>' + a.t + '</b><div class="ach-d">' + a.d + '</div></div></div>';
+    });
+    html += '</div><button class="btn btn-ghost" id="backM">← Menyu</button></div>';
+    menuView.innerHTML = html;
+    wireBack();
+  }
+
+  function readSaves() {
+    try { var a = JSON.parse(localStorage.getItem("zumrad-club-saves")); if (a && a.length === 3) return a; } catch (e) {}
+    return [null, null, null];
+  }
+  function writeSaves(a) { try { localStorage.setItem("zumrad-club-saves", JSON.stringify(a)); } catch (e) {} }
+  function renderSaves() {
+    var saves = readSaves();
+    var html = '<div class="table"><h2 class="game-title">Saqlashlar</h2><p class="game-sub">O’yinni 3 ta uyaga saqlang va keyin qaytadan yuklang.</p><div class="ach-list">';
+    for (var i = 0; i < 3; i++) {
+      var sv = saves[i];
+      html += '<div class="ach on"><span class="ach-ic">💾</span><div style="flex:1"><b>Uya ' + (i + 1) + '</b><div class="ach-d">' +
+        (sv ? fmt(sv.balance) + ' · ' + new Date(sv.ts).toLocaleString() : 'Bo’sh') + '</div></div>' +
+        '<button class="btn btn-primary" data-act="save" data-slot="' + i + '">Saqlash</button>' +
+        (sv ? '<button class="btn btn-ghost" data-act="load" data-slot="' + i + '">Yuklash</button><button class="btn btn-ghost" data-act="del" data-slot="' + i + '">O’chirish</button>' : '') +
+        '</div>';
+    }
+    html += '</div><button class="btn btn-ghost" id="backM">← Menyu</button></div>';
+    menuView.innerHTML = html;
+    wireBack();
+    Array.prototype.forEach.call(menuView.querySelectorAll("button[data-act]"), function(b){
+      b.addEventListener("click", function(){
+        var i = parseInt(b.dataset.slot, 10), act = b.dataset.act, all = readSaves();
+        if (act === "save") {
+          all[i] = { balance: state.balance, ach: JSON.parse(JSON.stringify(state.ach)), promos: JSON.parse(JSON.stringify(state.promos)), ts: Date.now() };
+        } else if (act === "del") {
+          all[i] = null;
+        } else if (act === "load" && all[i]) {
+          var sv = all[i], k;
+          for (k in sv.ach) state.ach[k] = true;
+          for (k in sv.promos) state.promos[k] = true;
+          setBalance(sv.balance);
+        }
+        writeSaves(all);
+        renderSaves();
+      });
+    });
+  }
+
+  document.getElementById("menuBtn").addEventListener("click", function(){ showView("menu"); });
+  document.getElementById("exitBtn").addEventListener("click", function(){ showView("menu"); });
+  document.getElementById("restart").addEventListener("click", function(){
+    setBalance(100000);
+    if (playView.style.display !== "none") renderGame(); else showView("menu");
+  });
+
+  // ---------- Init ----------
+  setBalance(state.balance);
+  showView("menu");
+  renderGame();
+})();
+</script>
+</body>
+</html>
